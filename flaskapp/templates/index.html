@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--<title>Air Canvas</title>-->
+    <style>
+        #video-feed {
+            margin: auto;
+            display: block;
+            border: 1px solid black;
+        }
+        #start-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <centre> AIR CANVAS</centre>
+    <button id="start-button" onclick="startDrawing()">Start Drawing</button>
+    <img id="video-feed" style="display:none;" src="{{ url_for('video_feed') }}" width="1280" height="720">
+    
+    <script>
+        function startDrawing() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log("Drawing started"); 
+                }
+            };
+            xhttp.open("GET", "/start_drawing", true);
+            xhttp.send();
+            document.getElementById("start-button").style.display = "none";
+            document.getElementById("video-feed").style.display = "block";
+        }
+    </script>
+</body>
+</html>
