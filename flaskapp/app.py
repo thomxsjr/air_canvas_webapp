@@ -1,16 +1,32 @@
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, session, request, redirect
 import cv2
 import mediapipe as mp
 import numpy as np
 import os
 import math
+import pyrebase
 
 app = Flask(__name__)
+
+config = {
+'apiKey': "AIzaSyDivnkmsK4dBJpSDI2Le_Nl6oL9vqJwmMY",
+'authDomain': "aircanvasflaskapp.firebaseapp.com",
+'projectId': "aircanvasflaskapp",
+'storageBucket': "aircanvasflaskapp.appspot.com",
+'messagingSenderId': "930383551956",
+'appId': "1:930383551956:web:c79ea45ebd49f808ec8a41",
+'databaseURL': 'https://aircanvasflaskapp-default-rtdb.asia-southeast1.firebasedatabase.app/'
+};
+
+firebase = pyrebase.initialize_app(config)
+auth = firebase.auth()
+app.secret_key = 'secret'
+
 
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 
-# Get the folder path of the script
+
 script_dir = os.path.dirname(os.path.abspath(__file__))
 folder_path = os.path.join(script_dir, 'Images')
 
@@ -26,12 +42,44 @@ tip_ids = [4, 8, 12, 16, 20]
 xp, yp = [0, 0]
 
 @app.route('/')
-def index():
+def welcome():
+    return render_template('welcome.html')
+@app.route('/login', methods=["POST", "GET"])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        try:
+            user = auth.sign_in_with_email_and_password(email, password)
+            return render_template('index.html')
+        except:
+            return 'Failed To Login'
+    else:
+        return render_template('login.html')
+    
+@app.route('/signup', methods=["POST", "GET"])
+def signup():
+    
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        try:
+            user = auth.create_user_with_email_and_password(email, password)
+            return render_template('index.html')
+        except:
+            return 'Failed To Login'
+    else:  
+        return render_template('signup.html')
+@app.route('/dashboard')
+def dashboard():
     return render_template('index.html')
+
+
+
 
 @app.route('/start_drawing')
 def start_drawing():
-    #add logic or procedures
+
     return 'Drawing started'
 
 
@@ -44,7 +92,7 @@ def gen_frames():
 
     cap = cv2.VideoCapture(0)
     cap.set(cv2.CAP_PROP_FPS, 5)
-    width = 1280
+    width = 640
     height = 720
     cap.set(3, width)
     cap.set(4, height)

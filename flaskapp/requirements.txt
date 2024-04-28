@@ -7,3 +7,4 @@ opencv-python==4.8.1.78
 mediapipe==0.10.11
 Werkzeug==2.2.2
 template-render==0.1.0
+pyrebase4==4.7.1
